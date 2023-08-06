@@ -1,0 +1,72 @@
+#+title: Schema
+
+* TODO config-tree [75%]
+- [ ] Deprecate byteorder
+- decode file [11/12]
+  - [X] bool
+  - [X] byte
+  - [X] unsigned
+  - [X] signed
+  - [X] f32
+  - [X] f64
+  - [ ] timestamp
+  - [X] color
+  - [X] byte array
+  - [X] array
+  - [X] string
+  - [X] path
+- encode [10/12]
+  - [X] bool
+  - [X] byte
+  - [X] unsigned
+  - [X] signed
+  - [X] f32
+  - [X] f64
+  - [ ] timestamp
+  - [X] color
+  - [X] byte array
+  - [ ] array
+  - [X] string
+  - [X] path
+- api
+  - [X] merging configurations
+  - [ ] privaliges
+  - [ ] geters
+  - [ ] seters
+
+
+* File
+** Header
+| length | Contents  |    Bytes |
+|--------+-----------+----------|
+|      1 | DEL       |     0x7F |
+|      2 | CT        |  0x43 54 |
+|      1 | alignment |     0x00 |
+|      4 | version   |          |
+|      8 | buffer    |     0x00 |
+| string | root      | variable |
+
+** Encoding
+*** Key
+| type | layout                     |
+|------+----------------------------|
+| Leaf | 1 1b + len: 7b + len bytes |
+| Node | 0 1b + len: 7b + len bytes |
+| End  | 0x00                       |
+*** Data
+| type                  | layout                                             |
+|-----------------------+----------------------------------------------------|
+| None                  | 0x00                                               |
+| False                 | 0x01                                               |
+| True                  | 0x02                                               |
+| Byte                  | 0x03 + 1B                                          |
+| Unsigned              | 0x04 + variant(usize)                              |
+| Signed                | 0x05 + variant(isize)                              |
+| f32                   | 0x06 + 4B                                          |
+| f64                   | 0x07 + 8B                                          |
+| Timestamp             | 0x08 + variant(usize)                              |
+| Color                 | 0x09 + 3B                                          |
+| Byte Array (Raw Data) | 0x80 + len: variant(usize) + len bytes             |
+| Array                 | 0x81 + len: variant(usize) + type: 1B + len * type |
+| String                | 0x82 + x bytes + 0x00                              |
+| Path                  | 0x83 + x bytes + 0x00                              |
